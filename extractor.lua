@@ -34,6 +34,15 @@ function extractor.extract(str, output)
             f.close()
         end
     end
+
+    return {
+        target = lua_part.target,
+        version = lua_part.version,
+        author = lua_part.author,
+        cct = lua_part.cct,
+        date = lua_part.date,
+        checksum = lua_part.checksum
+    }
 end
 
 return extractor
