@@ -35,7 +35,8 @@ local extractor = require("extractor")
 local file = fs.open("package.lua", "rb")
 local contents = file.readAll()
 
--- it extracts all the files and returns the metadata (like the checksum, author etc)
+-- it extracts all the files and returns the metadata (like the checksum, author etc).
+-- ALSO includes a compressed_list table, it tells you which files are compressed.
 local metadata = extractor.extract(contents, "some/path")
 
 

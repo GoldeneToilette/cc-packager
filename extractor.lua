@@ -16,6 +16,8 @@ function extractor.extract(str, output)
         indexed[v.index + 1] = {info = v, path = k}
     end
     local pos = 1
+
+    local comp_list = {}
     for i = 1, #indexed do
         local entry = indexed[i]
         if entry then
@@ -25,11 +27,12 @@ function extractor.extract(str, output)
             if dir then fs.makeDir(dir) end
 
             local f = fs.open(file_path, "wb")
-            if v.compression then
-                f.write(v.str) 
+            if not v.compression then
+                f.write(v.str)
             else
                 f.write(blob:sub(pos + 1, pos + v.length))
                 pos = pos + v.length
+                comp_list[entry.path] = true
             end
             f.close()
         end
@@ -41,7 +44,8 @@ function extractor.extract(str, output)
         author = lua_part.author,
         cct = lua_part.cct,
         date = lua_part.date,
-        checksum = lua_part.checksum
+        checksum = lua_part.checksum,
+        compressed_list = comp_list
     }
 end
 
