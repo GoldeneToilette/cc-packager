@@ -9,7 +9,7 @@ return {
     target = "server/client/whatever", -- who it is for, you can put anything in here
     version = "v0.1.2", -- program version 
     author = "john programmer", -- author
-    cct = "1.113.1", -- string or optionally a table. Describes what cc:t versions the program supports.
+    cct = "1.113.1", -- string or a table. Describes what cc:t versions the program supports.
     unminified = {
         "src/lib/somelib.lua",
         ... -- blacklist for minifying
@@ -26,7 +26,7 @@ Note: Additional metadata is included by the packager like a Adler32 checksum (L
 
 ## Usage Extractor:
 1. run ``pastebin get PwJne30Y``
-2. If you have compressed files, you will need [LibDeflate](https://github.com/safeteeWow/LibDeflate) to decompress them again ingame. With it you can also perform file integrity checks using the checksum.
+2. If you have compressed files, you will need [LibDeflate](https://github.com/safeteeWow/LibDeflate) to decompress them again in-game. With it you can also perform file integrity checks using the checksum.
 3. Example Usage:
 ```lua
 local LibDeflate = require("LibDeflate")
@@ -35,7 +35,9 @@ local extractor = require("extractor")
 local file = fs.open("package.lua", "rb")
 local contents = file.readAll()
 
-local metadata = extractor.extract(contents, "some/path") -- it extracts all the files and returns the metadata (like the checksum, author etc)
+-- it extracts all the files and returns the metadata (like the checksum, author etc)
+local metadata = extractor.extract(contents, "some/path")
+
 
 -- once all the files are created, you can decompress it for usage.
 file = fs.open("some/path/src/lib/somelib.lua", "wb")
