@@ -3601,30 +3601,36 @@ local function read_folder(target, unminified, uncompressed)
     local files = {}
     local count = 0
 
-    local entries = fs_listfiles_recursive(target)
-    table.sort(entries, function(a, b)
-        return a:gsub("\\", "/") < b:gsub("\\", "/")
-    end)
-    for _, path in ipairs(entries) do
-        local f = io.open(path, "rb")
+    local sep = jit.os == "Windows" and "\\" or "/"
+    local prefix = target:gsub("/", sep)
+    if prefix:sub(-1) ~= sep then prefix = prefix .. sep end
+    local entries = {}
+    for _, path in ipairs(fs_listfiles_recursive(target)) do
+        local rel = path:sub(1, #prefix) == prefix and path:sub(#prefix + 1) or path
+        entries[#entries + 1] = { abs = path, rel = rel:gsub("\\", "/") }
+    end
+    table.sort(entries, function(a, b) return a.rel < b.rel end)
+
+    local function matches(list, rel, abs)
+        for _, pat in ipairs(list or {}) do
+            if rel:match(pat) or abs:match(pat) then return true end
+        end
+        return false
+    end
+
+    for _, e in ipairs(entries) do
+        local f = io.open(e.abs, "rb")
         if f then
             local str = f:read("*a")
             f:close()
 
-            local skipMinify = false
-            for _, pat in ipairs(unminified or {}) do
-                if path:match(pat) then
-                    skipMinify = true
-                    break
-                end
-            end
-
-            if not skipMinify and path:match("%.lua$") then
+            if not matches(unminified, e.rel, e.abs) and e.rel:match("%.lua$") then
                 str = luamin_minify(str)
             end
-            files[path] = {
+            local uncomp = uncompressed and (uncompressed[e.rel] or uncompressed[e.abs])
+            files[e.rel] = {
                 str = str,
-                compression = not (uncompressed and uncompressed[path]),
+                compression = not uncomp,
                 index = count,
             }
             count = count + 1
